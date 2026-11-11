@@ -69,17 +69,6 @@ header.top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-bet
 .posts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
 .colhead{display:grid;grid-template-columns:110px 1fr 1fr;gap:10px;margin-bottom:6px;font-size:.8rem;color:var(--muted)}
 .empty{color:var(--muted);font-style:italic}
-.now{background:var(--surface);border:2px solid var(--accent);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:grid;gap:10px}
-.now .head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 12px}
-.now .clock{font-family:var(--f-mono);font-size:1.5rem;font-variant-numeric:tabular-nums}
-.now .live{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:var(--accent)}
-.now .live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
-.now .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
-.now .cell{border-inline-start:3px solid var(--line);padding-inline-start:10px;min-width:0}
-.now .cell .t{font-size:.8rem;color:var(--muted)}
-.now .cell .who{font-weight:600}
-.now .cell .rest{font-size:.88rem;color:var(--muted)}
-.now .c-patrol{border-color:var(--m-patrol)} .now .c-carmel{border-color:var(--m-carmel)} .now .c-yz{border-color:var(--m-yz)} .now .c-guard{border-color:var(--m-guard)}
 .band.is-now .when{border-color:var(--accent)}
 .band.is-now .card{border-color:var(--accent)}
 .card li.on{outline:2px solid var(--accent);outline-offset:-1px}
@@ -97,6 +86,12 @@ header.top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-bet
 .me-pick select{font-size:16px;flex:1 1 220px;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 .mylist{display:grid;gap:8px}
 .myrow{display:grid;grid-template-columns:70px 1fr auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.next{background:var(--surface);border:2px solid var(--accent);border-radius:14px;padding:14px;margin-bottom:8px}
+.next .k{font-size:.82rem;color:var(--muted)}
+.next .big{font-family:var(--f-display);font-size:1.6rem;line-height:1.2;margin:2px 0}
+.next .tm{font-size:1.25rem}
+.next .with{font-size:.88rem;color:var(--muted);margin-top:6px}
+.later{font-size:.9rem;color:var(--muted);margin-bottom:16px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:16px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .stat .v{font-family:var(--f-mono);font-size:1.4rem}
@@ -146,8 +141,8 @@ td.hi{color:var(--warn);font-weight:600}
     </div>
     <nav class="days" id="days" aria-label="ימים"></nav>
     <div class="tabs" role="tablist">
-      <button class="tab" role="tab" id="t-board" aria-selected="true" data-view="board">לוח</button>
-      <button class="tab" role="tab" id="t-me" aria-selected="false" data-view="me">שלי</button>
+      <button class="tab" role="tab" id="t-board" aria-selected="false" data-view="board">לוח</button>
+      <button class="tab" role="tab" id="t-me" aria-selected="true" data-view="me">שלי</button>
       <button class="tab" role="tab" id="t-fair" aria-selected="false" data-view="fair">הוגנות</button>
     </div>
     <div id="testnote" class="testnote" hidden>הדגמה בלבד — זה לא לוח אמיתי.</div>
@@ -166,7 +161,7 @@ td.hi{color:var(--warn);font-weight:600}
   const esc=(s)=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const b64=(s)=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
   const P=JSON.parse($("#payload").textContent);
-  let D=null, day=null, me=store.get("mp_me")||"", view="board", sortKey="shifts", sortDir=-1, dept="";
+  let D=null, day=null, me=store.get("mp_me")||"", view="me", sortKey="shifts", sortDir=-1, dept="";
   const KCLASS={duty:"c-yz",guard:"c-guard"}, CREWCLASS=["c-patrol","c-carmel"];
   const mcls=(m)=>m.kind==="crew"?CREWCLASS[day.missions.filter(x=>x.kind==="crew").indexOf(m)]||"":KCLASS[m.kind];
 
@@ -189,8 +184,8 @@ td.hi{color:var(--warn);font-weight:600}
   $("#lock").addEventListener("click",()=>{store.del("mp_pw");D=null;$("#app").hidden=true;$("#gate").hidden=false;$("#pw").value="";});
   document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{view=t.dataset.view;render();}));
 
-  function li(p){const cmd=p.role==="מפקד";return `<li class="${cmd?"cmd":""}${p.n===me?" me":""}"><span class="nm">${esc(p.n)}</span><span class="r">${esc(p.role)}</span></li>`;}
-  function crewCard(m,c){return `<div class="card ${mcls(m)}"><div class="k"><span>${esc(m.name)}</span><span class="mono muted">${esc(c.time)}</span></div>${c.members.length?`<ul>${c.members.map(li).join("")}</ul>`:`<div class="empty">לא שובץ</div>`}</div>`;}
+  function li(p){const cmd=p.role==="מפקד";return `<li class="${cmd?"cmd":""}${p.n===me?" me":""}"><span class="nm">${esc(p.n)}</span>${p.role==="נהג"?'<span class="r">נהג</span>':""}</li>`;}
+  function crewCard(m,c){return `<div class="card ${mcls(m)}"><div class="k"><span>${esc(m.name)}</span></div>${c.members.length?`<ul>${c.members.map(li).join("")}</ul>`:`<div class="empty">לא שובץ</div>`}</div>`;}
 
   const hr=(s)=>{const [a,b]=s.split(":");return +a+(+b||0)/60;};
   const pad=(n)=>String(n).padStart(2,"0");
@@ -209,24 +204,15 @@ td.hi{color:var(--warn);font-weight:600}
       turn:sg?sg.turns.find(x=>since(x.time.split("–")[0])<4):null,
       yzOn:yz?since(yz.start)<yz.duration:false};
   }
-  function renderNow(N){
-    const crews=day.missions.filter(m=>m.kind==="crew"), yz=day.missions.find(m=>m.kind==="duty");
-    const who=(ms)=>{const c=ms.find(p=>p.role==="מפקד")||ms[0];return c?`<div class="who">${esc(c.n)}</div><div class="rest">${ms.filter(p=>p!==c).map(p=>esc(p.n)).join(" · ")}</div>`:`<div class="rest">לא שובץ</div>`;};
-    let h=`<div class="now" aria-live="polite"><div class="head"><span class="live">${N.live?"עכשיו במשימה":"הדגמה: השעה עכשיו על לוח "+esc(day.label)}</span><span class="clock">${N.clock}</span></div><div class="grid">`;
-    crews.forEach(m=>{const c=m.crews[N.shift];h+=`<div class="cell ${mcls(m)}"><div class="t">${esc(m.name)} · <span class="mono">${esc(c.time)}</span></div>${who(c.members)}</div>`;});
-    if(N.turn) h+=`<div class="cell c-guard"><div class="t">${esc(day.missions.find(m=>m.kind==="guard").name)} · <span class="mono">${esc(N.turn.time)}</span></div><div class="who">${esc(N.turn.n)}</div></div>`;
-    if(yz) h+=`<div class="cell c-yz"><div class="t">${esc(yz.name)} · <span class="mono">${esc(yz.time)}</span></div>${N.yzOn?who(yz.members):`<div class="rest">לא בפעילות עכשיו · כוננות</div>`}</div>`;
-    return h+`</div></div>`;
-  }
 
   function renderBoard(){
     const crews=day.missions.filter(m=>m.kind==="crew");
     const yz=day.missions.find(m=>m.kind==="duty"), sg=day.missions.find(m=>m.kind==="guard");
     const N=nowFor();
-    let h=(N?renderNow(N):"")+`<div class="meta"><span>תאריך: <b class="mono">${esc(day.sheet_date)}</b></span><span>קצין תורן: <b>${esc(day.officer||"—")}</b></span><span>מפקד גזרה: <b>${esc(day.sector||"—")}</b></span><span>בבסיס: <b class="mono">${day.on_base}</b></span></div>`;
+    let h=`<div class="meta"><span>תאריך: <b class="mono">${esc(day.sheet_date)}</b></span>${day.officer?`<span>קצין תורן: <b>${esc(day.officer)}</b></span>`:""}${day.sector?`<span>מפקד גזרה: <b>${esc(day.sector)}</b></span>`:""}<span>בבסיס: <b class="mono">${day.on_base}</b></span></div>`;
     h+=`<div class="colhead"><span>משמרת</span>${crews.map(m=>`<span>${esc(m.name)}</span>`).join("")}</div>`;
     day.shifts.forEach((t,i)=>{
-      h+=`<div class="band${i===2?" night":""}${N&&N.shift===i?" is-now":""}"><div class="when"><span class="mono">${esc(t)}</span><span class="muted" style="font-size:.8rem">${["בוקר","ערב","לילה"][i]||""}</span></div>${crews.map(m=>crewCard(m,m.crews[i])).join("")}</div>`;
+      h+=`<div class="band${i===2?" night":""}${N&&N.shift===i?" is-now":""}"><div class="when"><span class="mono">${esc(t)}</span><span class="muted" style="font-size:.8rem">${["בוקר","ערב","לילה"][i]||""}</span>${N&&N.shift===i?'<span class="nowtag">● עכשיו</span>':""}</div>${crews.map(m=>crewCard(m,m.crews[i])).join("")}</div>`;
     });
     h+=`<div class="posts">`;
     if(yz) h+=`<div class="card c-yz"><div class="k"><span>${esc(yz.name)} · 24 ש׳</span><span class="mono muted">${esc(yz.time)}</span></div><ul>${yz.members.map(li).join("")}</ul></div>`;
@@ -244,13 +230,35 @@ td.hi{color:var(--warn);font-weight:600}
     if(d.spares.includes(n)) return {m:"ללא משימה",t:"",r:""};
     return null;
   }
+  const SH=["בוקר","ערב","לילה"], dkey=(x)=>x.toDateString();
+  function mySlots(n){
+    const out=[];
+    D.days.forEach(d=>{
+      const s0=hr(d.shifts[0].split("–")[0]);
+      const add=(m,lab,time,ms)=>{const [a,b]=time.split("–"),ha=hr(a),st=new Date(d.date+"T00:00");if(ha<s0)st.setDate(st.getDate()+1);st.setHours(Math.floor(ha),Math.round(ha%1*60));const en=new Date(st.getTime()+((hr(b)-ha+24)%24||24)*36e5);out.push({m,lab,time,ms,st,en});};
+      d.missions.forEach(m=>{
+        if(m.kind==="crew") m.crews.forEach((c,i)=>{if(c.members.some(p=>p.n===n)) add(m.name,SH[i],c.time,c.members);});
+        if(m.kind==="duty"&&m.members.some(p=>p.n===n)) add(m.name,"",m.time,m.members);
+        if(m.kind==="guard") m.turns.filter(x=>x.n===n).forEach(x=>add(m.name,"",x.time,[]));
+      });
+    });
+    return out.sort((a,b)=>a.st-b.st);
+  }
+  function whenLbl(st){const t=new Date(),m=new Date();m.setDate(t.getDate()+1);return dkey(st)===dkey(t)?"היום":dkey(st)===dkey(m)?"מחר":`${pad(st.getDate())}.${pad(st.getMonth()+1)}`;}
+  function nextCard(){
+    const now=new Date(), sl=mySlots(me).filter(s=>s.en>now);
+    if(!sl.length) return "";
+    const [a,b]=sl, on=a.st<=now, ttl=(s)=>esc(s.m)+(s.lab?" · "+s.lab:"");
+    const others=a.ms.filter(p=>p.n!==me).map(p=>p.role==="מפקד"?`<b>${esc(p.n)}</b> (מפקד)`:p.role==="נהג"?`${esc(p.n)} (נהג)`:esc(p.n)).join(" · ");
+    return `<div class="next"><div class="k">${on?"עכשיו במשימה":"המשימה הבאה שלך · "+whenLbl(a.st)}</div><div class="big">${ttl(a)}</div><div class="tm mono">${esc(a.time)}</div>${others?`<div class="with">עם ${others}</div>`:""}</div>`+(b?`<div class="later">אחר כך: ${ttl(b)} · ${whenLbl(b.st)} <span class="mono">${esc(b.time)}</span></div>`:"");
+  }
   function avg(k){const ps=D.people;return ps.reduce((a,p)=>a+(k in p.mix?p.mix[k]:p[k]),0)/ps.length;}
   function renderMe(){
     let h="";
     const p=D.people.find(x=>x.n===me);
     if(!p){h+=`<p class="muted">בחרו את השם שלכם בשדה "אני" למעלה כדי לראות את המשימות וההוגנות שלכם. השם נשמר רק בטלפון הזה.</p>`;}
     else{
-      h+=`<div class="mylist">`+D.days.slice().reverse().map(d=>{const s=slotFor(d,me);return `<div class="myrow"><span class="mono">${esc(d.label)}</span><span>${s?`<b>${esc(s.m)}</b> ${s.r?`<span class="muted">· ${esc(s.r)}</span>`:""}`:`<span class="muted">לא בבסיס</span>`}</span><span class="mono muted">${s?esc(s.t):""}</span></div>`}).join("")+`</div>`;
+      h+=nextCard()+`<div class="mylist">`+D.days.slice().reverse().map(d=>{const s=slotFor(d,me);return `<div class="myrow"><span class="mono">${esc(d.label)}</span><span>${s?`<b>${esc(s.m)}</b> ${s.r?`<span class="muted">· ${esc(s.r)}</span>`:""}`:`<span class="muted">לא בבסיס</span>`}</span><span class="mono muted">${s?esc(s.t):""}</span></div>`}).join("")+`</div>`;
       const st=[["משמרות","shifts"],["לילות","nights"],["8/8","rest8"],...Object.keys(p.mix).map(k=>[k,k])];
       h+=`<div class="stats">${st.map(([l,k])=>`<div class="stat"><div class="muted" style="font-size:.82rem">${l}</div><div class="v">${k in p.mix?p.mix[k]:p[k]}</div><div class="a">ממוצע ${avg(k).toFixed(1)}</div></div>`).join("")}</div>`;
     }
@@ -294,7 +302,7 @@ td.hi{color:var(--warn);font-weight:600}
     if(view==="board") renderBoard(); else if(view==="me") renderMe(); else renderFair();
   }
 
-  setInterval(()=>{if(D&&view==="board") renderBoard();},30000);
+  setInterval(()=>{if(D&&view!=="fair") render();},30000);
   const saved=store.get("mp_pw"); if(saved) open(saved,true);
 })();
 </script>

@@ -86,12 +86,11 @@ header.top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-bet
 .me-pick select{font-size:16px;flex:1 1 220px;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 .mylist{display:grid;gap:8px}
 .myrow{display:grid;grid-template-columns:70px 1fr auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-.next{background:var(--surface);border:2px solid var(--accent);border-radius:14px;padding:14px;margin-bottom:8px}
+.next{background:var(--surface);border:2px solid var(--accent);border-radius:14px;padding:14px;margin-bottom:16px}
 .next .k{font-size:.82rem;color:var(--muted)}
 .next .big{font-family:var(--f-display);font-size:1.6rem;line-height:1.2;margin:2px 0}
 .next .tm{font-size:1.25rem}
 .next .with{font-size:.88rem;color:var(--muted);margin-top:6px}
-.later{font-size:.9rem;color:var(--muted);margin-bottom:16px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:16px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .stat .v{font-family:var(--f-mono);font-size:1.4rem}
@@ -248,9 +247,9 @@ td.hi{color:var(--warn);font-weight:600}
   function nextCard(){
     const now=new Date(), sl=mySlots(me).filter(s=>s.en>now);
     if(!sl.length) return "";
-    const [a,b]=sl, on=a.st<=now, ttl=(s)=>esc(s.m)+(s.lab?" · "+s.lab:"");
+    const a=sl[0], on=a.st<=now, ttl=(s)=>esc(s.m)+(s.lab?" · "+s.lab:"");
     const others=a.ms.filter(p=>p.n!==me).map(p=>p.role==="מפקד"?`<b>${esc(p.n)}</b> (מפקד)`:p.role==="נהג"?`${esc(p.n)} (נהג)`:esc(p.n)).join(" · ");
-    return `<div class="next"><div class="k">${on?"עכשיו במשימה":"המשימה הבאה שלך · "+whenLbl(a.st)}</div><div class="big">${ttl(a)}</div><div class="tm mono">${esc(a.time)}</div>${others?`<div class="with">עם ${others}</div>`:""}</div>`+(b?`<div class="later">אחר כך: ${ttl(b)} · ${whenLbl(b.st)} <span class="mono">${esc(b.time)}</span></div>`:"");
+    return `<div class="next"><div class="k">${on?"עכשיו במשימה":"המשימה הבאה שלך · "+whenLbl(a.st)}</div><div class="big">${ttl(a)}</div><div class="tm mono">${esc(a.time)}</div>${others?`<div class="with">עם ${others}</div>`:""}</div>`;
   }
   function avg(k){const ps=D.people;return ps.reduce((a,p)=>a+(k in p.mix?p.mix[k]:p[k]),0)/ps.length;}
   function renderMe(){

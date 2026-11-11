@@ -1,4 +1,4 @@
-<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>לוח משימות פלוגתי</title>
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>שבצ״ק</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,7 +117,7 @@ td.hi{color:var(--warn);font-weight:600}
 <div class="wrap" dir="rtl" lang="he">
   <section class="gate" id="gate">
     <form id="gateForm" autocomplete="off">
-      <h1>לוח משימות</h1>
+      <h1>שבצ״ק</h1>
       <p class="muted" style="margin:0">הלוח מוצפן. הכניסו את סיסמת הפלוגה.</p>
       <label for="pw" class="muted" style="font-size:.85rem">סיסמה</label>
       <input id="pw" type="text" dir="ltr" class="masked" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
@@ -130,7 +130,7 @@ td.hi{color:var(--warn);font-weight:600}
   <main id="app" hidden>
     <header class="top">
       <div>
-        <h1 id="unit">לוח משימות</h1>
+        <h1 id="unit">שבצ״ק</h1>
         <div class="muted" id="updated" style="font-size:.85rem"></div>
       </div>
       <button class="chip" id="lock" type="button">נעילה ושכחת סיסמה</button>
@@ -292,7 +292,7 @@ td.hi{color:var(--warn);font-weight:600}
   }
 
   function render(){
-    $("#unit").textContent=D.unit||"לוח משימות";
+    $("#unit").textContent="שבצ״ק";
     $("#updated").textContent=`${D.days.length} ימים בלוח · עודכן ${D.published||""}`;
     $("#days").innerHTML=D.days.map(d=>`<button class="day" type="button" data-date="${d.date}" aria-pressed="${d===day}">${esc(d.label)}${d.test?' <span class="badge">TEST</span>':""}</button>`).join("");
     document.querySelectorAll(".day").forEach(b=>b.addEventListener("click",()=>{day=D.days.find(d=>d.date===b.dataset.date);render();}));

@@ -7,17 +7,17 @@
 /* Layout: duty-roster board — day strip, three 8h shift bands with a card per mission, then 24h posts; tabs for "שלי" and fairness. */
 :root{
   --bg:#f1f0ea; --surface:#fbfaf6; --ink:#1d221e; --muted:#676c63; --line:#d8d6cb; --accent:#2c5a4c; --accent-ink:#ffffff;
-  --m-patrol:#355f91; --m-carmel:#4c7436; --m-yz:#a86a1f; --m-guard:#7d4872; --warn:#b4401a; --hl:#fff1b8; --hl-ink:#1d221e;
+  --m-patrol:#355f91; --m-carmel:#4c7436; --m-yz:#a86a1f; --m-guard:#7d4872; --warn:#b4401a; --hl:#fff1b8; --hl-ink:#1d221e; --under:#2f6f9f;
   --f-display:"Secular One","IBM Plex Sans Hebrew",system-ui,sans-serif;
   --f-body:"IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#121512; --surface:#1a1e1a; --ink:#e6e5de; --muted:#9a9e94; --line:#2d322d; --accent:#7fb5a2; --accent-ink:#0f1411;
-  --m-patrol:#7ea6d8; --m-carmel:#94c07a; --m-yz:#e0a85c; --m-guard:#c993bd; --warn:#f08a5d; --hl:#5a4a12; --hl-ink:#fff6d6; color-scheme:dark}}
+  --m-patrol:#7ea6d8; --m-carmel:#94c07a; --m-yz:#e0a85c; --m-guard:#c993bd; --warn:#f08a5d; --hl:#5a4a12; --hl-ink:#fff6d6; --under:#7fb0dc; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#121512; --surface:#1a1e1a; --ink:#e6e5de; --muted:#9a9e94; --line:#2d322d; --accent:#7fb5a2; --accent-ink:#0f1411;
-  --m-patrol:#7ea6d8; --m-carmel:#94c07a; --m-yz:#e0a85c; --m-guard:#c993bd; --warn:#f08a5d; --hl:#5a4a12; --hl-ink:#fff6d6; color-scheme:dark}
+  --m-patrol:#7ea6d8; --m-carmel:#94c07a; --m-yz:#e0a85c; --m-guard:#c993bd; --warn:#f08a5d; --hl:#5a4a12; --hl-ink:#fff6d6; --under:#7fb0dc; color-scheme:dark}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
 .wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
 h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0}
@@ -100,16 +100,19 @@ header.top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-bet
 .filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .chip{padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:.88rem}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-table{border-collapse:collapse;width:100%;font-size:.9rem}
-th,td{padding:7px 10px;text-align:center;white-space:nowrap;border-bottom:1px solid var(--line)}
-th{position:sticky;top:0;background:var(--surface);font-weight:600;font-size:.8rem;color:var(--muted);cursor:pointer;user-select:none}
-th[aria-sort]{color:var(--ink)}
-td:first-child,th:first-child{text-align:start}
-td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
-tr.avg td{color:var(--muted);font-style:italic}
-tr.me td{background:var(--hl);color:var(--hl-ink)}
-td.hi{color:var(--warn);font-weight:600}
+.person{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:6px}
+.person.me{background:var(--hl);color:var(--hl-ink)}
+.person .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.person .top b{font-weight:600}
+.person .top .muted{font-size:.8rem}
+.meter{display:grid;grid-template-columns:3.6em 1fr 3em;gap:8px;align-items:center;font-size:.8rem}
+.bar{position:relative;height:8px;background:var(--line);border-radius:4px}
+.bar::after{content:"";position:absolute;top:-2px;bottom:-2px;inset-inline-start:calc(50% - 1px);width:2px;background:var(--muted)}
+.bar i{position:absolute;top:0;bottom:0;border-radius:4px;background:var(--muted)}
+.bar i.over{background:var(--warn)} .bar i.under{background:var(--under)}
+.meter .mono.over{color:var(--warn);font-weight:600} .meter .mono.under{color:var(--under)}
+.person details{margin-top:4px;font-size:.82rem}
+.person summary{cursor:pointer;color:var(--muted)}
 .foot{margin-top:24px;font-size:.82rem;color:var(--muted)}
 </style>
 
@@ -160,7 +163,7 @@ td.hi{color:var(--warn);font-weight:600}
   const esc=(s)=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const b64=(s)=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
   const P=JSON.parse($("#payload").textContent);
-  let D=null, day=null, me=store.get("mp_me")||"", view="me", sortKey="shifts", sortDir=-1, dept="";
+  let D=null, day=null, me=store.get("mp_me")||"", view="me", dept="";
   const KCLASS={duty:"c-yz",guard:"c-guard"}, CREWCLASS=["c-patrol","c-carmel"];
   const mcls=(m)=>m.kind==="crew"?CREWCLASS[day.missions.filter(x=>x.kind==="crew").indexOf(m)]||"":KCLASS[m.kind];
 
@@ -270,23 +273,23 @@ td.hi{color:var(--warn);font-weight:600}
     sel.onchange=()=>{me=sel.value; me?store.set("mp_me",me):store.del("mp_me"); render();};
   }
 
-  const BASECOLS=[["שם","n"],["מחלקה","dept"],["ימים בבסיס","on_base"],["משמרות","shifts"],["לילות","nights"],["8/8","rest8"]];
-  const val=(p,k)=>k in p.mix?p.mix[k]:p[k];
+  const MET=[["שעות","h"],["לילות","ni"],["8/8","r8"],["סופ״ש","we"]];
   function renderFair(){
-    const COLS=[...BASECOLS,...Object.keys(D.people[0].mix).map(k=>[k,k])];
-    const depts=[...new Set(D.people.map(p=>p.dept))];
-    let rows=D.people.filter(p=>!dept||p.dept===dept);
-    rows=rows.slice().sort((a,b)=>{const x=val(a,sortKey),y=val(b,sortKey);return (typeof x==="number"?(x-y):String(x).localeCompare(String(y),"he"))*sortDir;});
-    const nums=COLS.slice(2).map(c=>c[1]);
-    const mean={}; nums.forEach(k=>mean[k]=rows.length?rows.reduce((a,p)=>a+val(p,k),0)/rows.length:0);
+    const all=D.people.map(p=>{const s=mySlots(p.n);return {n:p.n,dept:p.dept,on:p.on_base,h:Math.round(s.reduce((a,x)=>a+(x.en-x.st)/36e5,0)),ni:p.nights,r8:p.rest8,we:s.filter(x=>x.st.getDay()>=5).length,mix:p.mix};});
+    const mixK=Object.keys(all[0].mix), keys=[...MET.map(m=>m[1]),...mixK.map(k=>"m:"+k)];
+    const get=(r,k)=>k.startsWith("m:")?r.mix[k.slice(2)]:r[k], on=all.reduce((a,r)=>a+r.on,0)||1, rate={}, span={};
+    keys.forEach(k=>rate[k]=all.reduce((a,r)=>a+get(r,k),0)/on);
+    all.forEach(r=>{r.dev={};keys.forEach(k=>r.dev[k]=get(r,k)-r.on*rate[k]);});
+    keys.forEach(k=>span[k]=Math.max(k==="h"?16:3,...all.map(r=>Math.abs(r.dev[k]))));
+    const sg=(v)=>{const x=Math.round(Math.abs(v)*10)/10;return (x===0?"":v>0?"+":"−")+x;};
+    const meter=(lab,k,r)=>{const v=r.dev[k],t=k==="h"?8:1,c=v>t?"over":v<-t?"under":"",w=Math.min(Math.abs(v)/span[k],1)*50;
+      return `<div class="meter"><span class="muted">${esc(lab)}</span><div class="bar"><i class="${c}" style="${v>=0?"inset-inline-start":"inset-inline-end"}:50%;width:${w}%"></i></div><span class="mono ${c||"muted"}">${sg(v)}</span></div>`;};
+    const depts=[...new Set(all.map(r=>r.dept))];
+    const rows=all.filter(r=>!dept||r.dept===dept).sort((a,b)=>b.dev.h-a.dev.h);
     let h=`<div class="filters">${["",...depts].map(d=>`<button class="chip" type="button" data-dept="${esc(d)}" aria-pressed="${d===dept}">${d?esc(d):"כולם"}</button>`).join("")}</div>`;
-    h+=`<p class="muted" style="margin:0 0 8px;font-size:.88rem">מעל הממוצע ביותר מ-1 מסומן. סדר העדיפויות: משמרות, 8/8, לילות, תמהיל משימות.</p>`;
-    h+=`<div class="tablewrap"><table><thead><tr>${COLS.map(([l,k])=>`<th data-k="${k}"${k===sortKey?` aria-sort="${sortDir<0?"descending":"ascending"}"`:""}>${l}${k===sortKey?(sortDir<0?" ↓":" ↑"):""}</th>`).join("")}</tr></thead><tbody>`;
-    h+=`<tr class="avg"><td>ממוצע</td><td></td>${nums.map(k=>`<td class="n">${mean[k].toFixed(1)}</td>`).join("")}</tr>`;
-    h+=rows.map(p=>`<tr class="${p.n===me?"me":""}"><td>${esc(p.n)}</td><td>${esc(p.dept.replace("מחלקה ",""))}</td>${nums.map(k=>{const v=val(p,k);const hi=k!=="on_base"&&v-mean[k]>1;return `<td class="n${hi?" hi":""}">${v}</td>`}).join("")}</tr>`).join("");
-    h+=`</tbody></table></div>`;
+    h+=`<p class="muted" style="margin:0 0 10px;font-size:.85rem">הקו באמצע הוא החלק ההוגן לפי ימים בבסיס. שמאלה = יותר, ימינה = פחות.</p>`;
+    h+=rows.map(r=>`<div class="person${r.n===me?" me":""}"><div class="top"><b>${esc(r.n)}</b><span class="muted">${r.h} שעות</span></div>${MET.map(([l,k])=>meter(l,k,r)).join("")}<details><summary>תמהיל משימות</summary>${mixK.map(m=>meter(m,"m:"+m,r)).join("")}</details></div>`).join("");
     $("#v-fair").innerHTML=h;
-    document.querySelectorAll("#v-fair th").forEach(th=>th.addEventListener("click",()=>{const k=th.dataset.k; if(k===sortKey) sortDir*=-1; else {sortKey=k; sortDir=(k==="n"||k==="dept")?1:-1;} renderFair();}));
     document.querySelectorAll("#v-fair .chip").forEach(c=>c.addEventListener("click",()=>{dept=c.dataset.dept;renderFair();}));
   }
 

@@ -285,7 +285,7 @@ header.top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-bet
     const meter=(lab,k,r)=>{const v=r.dev[k],t=k==="h"?8:1,c=v>t?"over":v<-t?"under":"",w=Math.min(Math.abs(v)/span[k],1)*50;
       return `<div class="meter"><span class="muted">${esc(lab)}</span><div class="bar"><i class="${c}" style="${v>=0?"inset-inline-start":"inset-inline-end"}:50%;width:${w}%"></i></div><span class="mono ${c||"muted"}">${sg(v)}</span></div>`;};
     const depts=[...new Set(all.map(r=>r.dept))];
-    const rows=all.filter(r=>!dept||r.dept===dept).sort((a,b)=>b.dev.h-a.dev.h);
+    const rows=all.filter(r=>!dept||r.dept===dept).sort((a,b)=>(b.n===me)-(a.n===me)||b.dev.h-a.dev.h);
     let h=`<div class="filters">${["",...depts].map(d=>`<button class="chip" type="button" data-dept="${esc(d)}" aria-pressed="${d===dept}">${d?esc(d):"כולם"}</button>`).join("")}</div>`;
     h+=`<p class="muted" style="margin:0 0 10px;font-size:.85rem">הקו באמצע הוא החלק ההוגן לפי ימים בבסיס. שמאלה = יותר, ימינה = פחות.</p>`;
     h+=rows.map(r=>`<div class="person${r.n===me?" me":""}"><div class="top"><b>${esc(r.n)}</b><span class="muted">${r.h} שעות</span></div>${MET.map(([l,k])=>meter(l,k,r)).join("")}<details><summary>תמהיל משימות</summary>${mixK.map(m=>meter(m,"m:"+m,r)).join("")}</details></div>`).join("");

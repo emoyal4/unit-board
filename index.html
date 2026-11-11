@@ -32,7 +32,7 @@ button,input,select{font:inherit;color:inherit}
 .gate{min-height:70vh;display:grid;place-items:center}
 .gate form{display:grid;gap:12px;width:min(360px,100%);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px}
 .gate input.masked{-webkit-text-security:disc;text-security:disc}
-.gate input#pw{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.gate input#pw{font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
 .btn{padding:10px 14px;border:0;border-radius:8px;background:var(--accent);color:var(--accent-ink);font-weight:600;cursor:pointer}
 .err{color:var(--warn);min-height:1.5em;margin:0}
 
@@ -94,7 +94,7 @@ header.top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-bet
 
 /* me */
 .me-pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.me-pick input{flex:1 1 220px;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.me-pick select{font-size:16px;flex:1 1 220px;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 .mylist{display:grid;gap:8px}
 .myrow{display:grid;grid-template-columns:70px 1fr auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:16px}
@@ -142,8 +142,7 @@ td.hi{color:var(--warn);font-weight:600}
     </header>
     <div class="me-pick">
       <label for="meIn" class="muted" style="align-self:center">אני:</label>
-      <input id="meIn" list="names" placeholder="הקלידו את השם שלכם" aria-label="השם שלי">
-      <datalist id="names"></datalist>
+      <select id="meIn" aria-label="השם שלי"></select>
     </div>
     <nav class="days" id="days" aria-label="ימים"></nav>
     <div class="tabs" role="tablist">
@@ -258,10 +257,10 @@ td.hi{color:var(--warn);font-weight:600}
     $("#v-me").innerHTML=h;
   }
   function setupPicker(){
-    const names=D.people.map(p=>p.n), inp=$("#meIn");
-    $("#names").innerHTML=names.map(n=>`<option value="${esc(n)}">`).join("");
-    inp.value=names.includes(me)?me:"";
-    inp.onchange=()=>{const v=inp.value.trim(); if(names.includes(v)||v===""){me=v; v?store.set("mp_me",v):store.del("mp_me"); render();}};
+    const names=D.people.map(p=>p.n), sel=$("#meIn");
+    sel.innerHTML=`<option value="">בחרו שם</option>`+names.slice().sort((a,b)=>a.localeCompare(b,"he")).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("");
+    sel.value=names.includes(me)?me:"";
+    sel.onchange=()=>{me=sel.value; me?store.set("mp_me",me):store.del("mp_me"); render();};
   }
 
   const BASECOLS=[["שם","n"],["מחלקה","dept"],["ימים בבסיס","on_base"],["משמרות","shifts"],["לילות","nights"],["8/8","rest8"]];

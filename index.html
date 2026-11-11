@@ -125,7 +125,7 @@ td.hi{color:var(--warn);font-weight:600}
       <h1>לוח משימות</h1>
       <p class="muted" style="margin:0">הלוח מוצפן. הכניסו את סיסמת הפלוגה.</p>
       <label for="pw" class="muted" style="font-size:.85rem">סיסמה</label>
-      <input id="pw" type="text" class="masked" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+      <input id="pw" type="text" dir="ltr" class="masked" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
       <label style="display:flex;gap:8px;align-items:center;font-size:.85rem" class="muted"><input id="showpw" type="checkbox"> הצגת הסיסמה</label>
       <button class="btn" id="unlock" type="submit">פתיחה</button>
       <p class="err" id="err" role="alert"></p>
@@ -186,7 +186,7 @@ td.hi{color:var(--warn);font-weight:600}
     render();
   }
   $("#gateForm").addEventListener("submit",(e)=>{e.preventDefault();$("#err").textContent="";open($("#pw").value.trim().normalize("NFC"),false);});
-  $("#showpw").addEventListener("change",(e)=>$("#pw").classList.toggle("masked",!e.target.checked));
+  $("#showpw").addEventListener("change",(e)=>{const el=$("#pw"),v=el.value;el.classList.toggle("masked",!e.target.checked);el.style.webkitTextSecurity=e.target.checked?"none":"disc";el.value="";el.value=v;});
   $("#lock").addEventListener("click",()=>{store.del("mp_pw");D=null;$("#app").hidden=true;$("#gate").hidden=false;$("#pw").value="";});
   document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{view=t.dataset.view;render();}));
 
